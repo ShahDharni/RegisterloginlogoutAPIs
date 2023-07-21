@@ -1,36 +1,13 @@
 # # # from django.db import models
 # # # from django.contrib.auth.models import AbstractUser
-# # # from django.contrib.auth.models import User
+from django.contrib.auth.models import User
 # # # from django.db import models
-# # # from django.db.models.signals import post_save
-# # # from django.dispatch import receiver
-
+from django.db.models.signals import post_save
+from django.dispatch import receiver
 # # # class User(AbstractUser):
-    
-
-  
-# # # class UserProfile(models.Model):
-# # #     Vendor = 1
-# # #     Employee = 2
- 
-# # #     user_type = (
-# # #         (Vendor, 'Vendor'),
-# # #         (Employee, 'Employee'),
-       
-# # #     )
-# # #     name = models.OneToOneField(User, on_delete=models.CASCADE)
-# # #     DOB = models.DateField(null=True, blank=True)
-# # #     user_data = models.PositiveSmallIntegerField(choices=user_type, null=True, blank=True)
+from django.db.models.signals import pre_save,post_save
 
 
-    
-
-
-# # # @receiver(post_save, sender=User)
-# # # def create_or_update_user_profile(sender, instance, created, **kwargs):
-# # #     if created:
-# # #         UserProfile.objects.create(user=instance)
-# # #     instance.profile.save()
 
 
 
@@ -63,11 +40,15 @@
 # # def save_profile(sender, instance, **kwargs):
 # #     instance.profile.save()
 
+from django.conf import settings
+from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
+from django.core.exceptions import ValidationError
 
 from django.contrib.auth.models import AbstractUser
 from django.db import models
-from django.db import models
-from django.contrib.auth.models import AbstractUser
+user=get_user_model
+# from .admin import add_view
 # Create your models here.
 class Category(models.Model):
 
@@ -111,7 +92,30 @@ class User(AbstractUser):
     name = models.CharField(max_length=100)
     DOB = models.CharField(max_length=80)
     user_type = models.CharField( choices=user_type_data, max_length=10)
-    
 
     def __str__(self):
         return self.name
+
+  
+# @receiver(pre_save, sender=User)
+# def limit_user_registration(sender, instance, *args,**kwargs):
+#     print("inside function...")
+#     print(sender)
+#     print("***********")
+#     print(instance)
+#     print("IIIIII")
+#     user_count = User.objects.count()
+#     max_users = 5
+
+    
+#     if sender.objects.count() > 5:
+#         if user_count > max_users:
+#             raise ValidationError("You can't register more than 5 users.")
+
+
+
+class ProductImage(models.Model):
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='product_images')
+    image = models.ImageField( null=True,blank=True,
+                          default='/images')
+     

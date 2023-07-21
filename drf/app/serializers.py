@@ -5,6 +5,7 @@ from rest_framework.authtoken.models import Token
 from django.contrib.auth import get_user_model 
 from .models import Category, Product
 from django.contrib.auth import get_user_model 
+from.models import ProductImage
 
 
 
@@ -14,15 +15,28 @@ class CategorySerializer(serializers.ModelSerializer):
         fields = ('category_name','category_desc')
 
 
+class ProductImageSerializer(serializers.ModelSerializer):
+   
+    class Meta:
+        model=ProductImage
+        fields=['id','product','image']
+
+
+
 
        
 
 
 class ProductSerializer(serializers.ModelSerializer):
+    image=ProductImageSerializer(many=True)
+    uploaded_images=serializers.ListField(
+        child=serializers.ImageField(max_length=10000000,allow_empty_file=False,use_url=False),
+        write_only=True
+    )
 
     class Meta:
         model = Product
-        fields = ['product_id', 'category_id', 'product_name', 'product_desc']
+        fields = ['product_id', 'category_id', 'product_name', 'product_desc','uploaded_images']
 
 UserModel = get_user_model()
 
@@ -46,18 +60,6 @@ class UserSerializer(serializers.ModelSerializer):
             name=validated_data['name'],
             DOB=validated_data['DOB'],
             user_type=validated_data['user_type'],
-
-
-
-
-
-
-            
-    
-
- 
-         
-
         )
         return user
 

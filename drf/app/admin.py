@@ -1,72 +1,19 @@
-
-# # from .models import User
-
-# # admin.site.register(User)
-
-
-# from django.contrib import admin
-# from django.contrib.auth.admin import UserAdmin
-# from django.contrib.auth.models import User
-
-# from .models import Profile
-
-# # class ProfileInline(admin.StackedInline):
-# #     model = Profile
-# #     can_delete = False
-# #     verbose_name_plural = 'Profile'
-# #     fk_name = 'name'
-
-# # class CustomUserAdmin(UserAdmin):
-# #     inlines = (ProfileInline, )
-
-# #     def get_inline_instances(self, request, obj=None):
-# #         if not obj:
-# #             return list()
-# #         return super(CustomUserAdmin, self).get_inline_instances(request, obj)
-
-
-# # admin.site.unregister(User)
-# # admin.site.register(User, CustomUserAdmin)
-
-
-# # class CustomUserAdmin(UserAdmin):
-# #     inlines = (ProfileInline, )
-# #     list_display = ('username', 'email', 'first_name', 'last_name', 'is_staff', 'get_location')
-# #     list_select_related = ('profile', )
-
-# #     # def get_location(self, instance):
-# #     #     return instance.profile.location
-# #     # get_location.short_description = 'Location'
-
-# #     def get_inline_instances(self, request, obj=None):
-# #         if not obj:
-# #             return list()
-# #         return super(CustomUserAdmin, self).get_inline_instances(request, obj)
-
-
-
-# from django.contrib import admin
-# from django.contrib.auth.admin import UserAdmin
-
-# # from .models import CustomUser
-
-# class CustomUserAdmin(UserAdmin):
-#     model = User
-#     list_display = ['email', 'username', 'first_name', 'last_name', 'is_staff']
-
-# admin.site.register(User, CustomUserAdmin)
-
-
-
+from typing import Optional
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 from django.contrib.auth.forms import UserCreationForm,UserChangeForm
+from django.http.request import HttpRequest
 from .models import User
 from django.db import models
 from .models import Product
 from .models import Category
 from django.utils.html import format_html
 from .models import *
+from django.http import HttpResponseRedirect
+from django.contrib import messages
+# from rest_framework.views import
+# from django.contrib.messages import constants as messages
+ 
 
 # Register your models here.
 class CategoryAdmin(admin.ModelAdmin):
@@ -80,9 +27,15 @@ class CategoryAdmin(admin.ModelAdmin):
     is_active.boolean = True
 
 
+
+
+from .models import ProductImage
+ 
+class ProductImageAdmin(admin.StackedInline):
+    model = ProductImage
+    
    
 admin.site.register(Category,CategoryAdmin)
-
 admin.site.site_header = "Django_worst"
 admin.site.site_title = "Welcome to D's Project"
 admin.site.index_title = "Welcome to D's Project"
@@ -99,20 +52,33 @@ class ProductAdmin(admin.ModelAdmin):
 
 
 admin.site.register(Product,ProductAdmin)
-
+admin.site.register(ProductImage)
 
 
 class CustomUserAdmin(UserAdmin):
     add_form=UserCreationForm
     form=UserChangeForm
     model=User
-    list_display=['name','DOB','user_type']
-    add_fieldsets=UserAdmin.add_fieldsets+ (
-        (None,{'fields':('name','DOB','user_type',)}),
-    )
-    fieldsets=UserAdmin.fieldsets+ (
-        (None,{'fields':('name','DOB','user_type',)}),
-    )
+    list_display=["id","username",'name','DOB','user_type']
+    # add_fieldsets=UserAdmin.add_fieldsets+ (
+    #     (None,{'fields':('name','DOB','user_type',)}),
+    # )
+    # fieldsets=UserAdmin.fieldsets+ (
+    #     (None,{'fields':('name','DOB','user_type',)}),
+    # )
 
+    def add_view(self, request,form_url='' ,extra_context=None):
+        if request.method == "POST":
+            if User.objects.all().count() >= 5:
+                messages.error(
+                        request, f"Update you subscription plan to add more users."
+                    )
+                return HttpResponseRedirect("/admin/app/user/")
+            
+
+        return super().add_view(request,form_url=form_url,extra_context=extra_context)
 
 admin.site.register(User,CustomUserAdmin)
+
+# class UserAdminPermissions(admin.ModelAdmin):
+    

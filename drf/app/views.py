@@ -31,7 +31,7 @@ from rest_framework.exceptions import AuthenticationFailed
 from rest_framework.authentication import TokenAuthentication, SessionAuthentication
 from rest_framework.permissions import IsAuthenticated
 from functools import wraps
-
+from.serializers import ProductImageSerializer
 
 # from .serializers import CustomModelSerializer
 from django.contrib.auth import get_user_model
@@ -83,3 +83,11 @@ class LogoutAPI(Get_Response,generics.GenericAPIView):
         logout(request)
         return Response('User Logged out successfully')  
     
+
+
+
+class Product_ImageAPIView(APIView):
+    def getProduct(request, pk):
+     product = Product.objects.get(id=pk)
+     serializer = ProductImageSerializer(product, many=False)
+     return Response(serializer.data)
